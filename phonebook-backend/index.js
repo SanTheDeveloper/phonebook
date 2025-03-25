@@ -1,7 +1,15 @@
+require("dotenv").config();
 // Import the Express library
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
+// const cors = require("cors");
+
+// Serve static files from the "dist" directory
+app.use(express.static("dist"));
+
+/* // Enable CORS for all routes
+app.use(cors()); */
 
 // Middleware to parse JSON data in requests
 app.use(express.json());
@@ -101,8 +109,16 @@ app.post("/api/persons", (request, response) => {
   response.json(newPerson);
 });
 
+// Middleware for handling unknown endpoints
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" }); // Return 404 for undefined routes
+};
+
+// Apply unknown endpoint handler for unmatched routes
+app.use(unknownEndpoint);
+
 // Start the server on port 3001
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
