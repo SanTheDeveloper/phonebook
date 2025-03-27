@@ -1,25 +1,21 @@
-import { useState } from "react";
-
-const PersonForm = ({ onSubmit }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    number: "",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-    setFormData({ name: "", number: "" });
-  };
-
+const PersonForm = ({
+  newName,
+  newNumber,
+  handleNameChange,
+  handleNumberChange,
+  addPerson,
+}) => {
   return (
-    <form onSubmit={handleSubmit} className="person-form">
-      {/* ... rest of the component remains the same ... */}
+    <form onSubmit={addPerson}>
+      <div>
+        name: <input value={newName} onChange={handleNameChange} />
+      </div>
+      <div>
+        number: <input value={newNumber} onChange={handleNumberChange} />
+      </div>
+      <div>
+        <button type="submit">add</button>
+      </div>
     </form>
   );
 };
