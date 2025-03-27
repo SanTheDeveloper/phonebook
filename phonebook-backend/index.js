@@ -52,6 +52,7 @@ app.use(
 /**
  * GET /api/persons
  * Returns all phonebook entries
+ * Response: JSON array of person objects
  */
 app.get("/api/persons", async (request, response) => {
   try {
@@ -66,6 +67,7 @@ app.get("/api/persons", async (request, response) => {
 /**
  * GET /info
  * Returns phonebook metadata (count and current time)
+ * Response: HTML formatted string with count and timestamp
  */
 app.get("/info", async (request, response) => {
   try {
@@ -83,6 +85,7 @@ app.get("/info", async (request, response) => {
 /**
  * GET /api/persons/:id
  * Returns a single phonebook entry by ID
+ * Response: JSON object of the requested person or error
  */
 app.get("/api/persons/:id", async (request, response) => {
   try {
@@ -100,6 +103,8 @@ app.get("/api/persons/:id", async (request, response) => {
 /**
  * POST /api/persons
  * Creates a new phonebook entry
+ * Request body: { name: string, number: string }
+ * Response: JSON object of the created person or error
  */
 app.post("/api/persons", async (request, response) => {
   const { name, number } = request.body;
@@ -132,27 +137,38 @@ app.post("/api/persons", async (request, response) => {
   }
 });
 
-app.put("api/persons/:id", async (request, response) => {
+/**
+ * PUT /api/persons/:id
+ * Updates an existing phonebook entry
+ * Request body: { name: string, number: string }
+ * Response: JSON object of the updated person or error
+ */
+app.put("/api/persons/:id", async (request, response, next) => {
   const { name, number } = request.body;
 
   try {
     const person = await Person.findById(request.params.id);
     if (!person) {
-      response.status(404).json({ error: "Person not found" });
+      return response.status(404).json({ error: "Person not found" });
     }
-    person.number = number;
+
+    // Update fields if provided
+    if (name) person.name = name;
+    if (number) person.number = number;
+
     const updatedPerson = await person.save();
     response.json(updatedPerson);
   } catch (error) {
-    next(error);
+    next(error); // Pass errors to the error handler middleware
   }
 });
 
 /**
  * DELETE /api/persons/:id
  * Deletes a phonebook entry by ID
+ * Response: 204 No Content on success or error
  */
-app.delete("/api/persons/:id", async (request, response) => {
+app.delete("/api/persons/:id", async (request, response, next) => {
   try {
     const deletedPerson = await Person.findByIdAndDelete(request.params.id);
     if (!deletedPerson) {
@@ -160,7 +176,7 @@ app.delete("/api/persons/:id", async (request, response) => {
     }
     response.status(204).end();
   } catch (error) {
-    next(error);
+    next(error); // Pass errors to the error handler middleware
   }
 });
 
@@ -170,6 +186,7 @@ app.delete("/api/persons/:id", async (request, response) => {
 
 /**
  * Handle unknown endpoints
+ * Response: JSON error object with list of available endpoints
  */
 const unknownEndpoint = (request, response) => {
   response.status(404).json({
@@ -187,6 +204,7 @@ app.use(unknownEndpoint);
 
 /**
  * Error handling middleware
+ * Handles different types of errors with appropriate responses
  */
 const errorHandler = (error, request, response, next) => {
   console.error("Error:", error.message);
@@ -213,14 +231,16 @@ const errorHandler = (error, request, response, next) => {
     details: error.message,
   });
 
-  next(error);
+  // Note: next(error) is not needed here as we're already handling the error
 };
+
 app.use(errorHandler);
 
 // ======================
 // SERVER INITIALIZATION
 // ======================
 
+// Use PORT from environment variables or default to 3001
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
