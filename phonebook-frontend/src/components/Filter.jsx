@@ -1,8 +1,14 @@
-const Filter = ({ searchTerm, handleSearchChange }) => {
+const Filter = ({ value, onChange }) => {
   return (
-    <div>
-      filter shown with{" "}
-      <input value={searchTerm} onChange={handleSearchChange} />
+    <div className="filter">
+      <label htmlFor="filter">Filter contacts:</label>
+      <input
+        id="filter"
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Search by name..."
+      />
     </div>
   );
 };
