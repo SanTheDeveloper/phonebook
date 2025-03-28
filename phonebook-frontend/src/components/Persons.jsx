@@ -14,9 +14,7 @@ const Persons = ({ persons, handleDelete }) => {
             className="delBtn"
             onClick={() => handleDelete(person.id)}
             aria-label={`Delete ${person.name}`}
-          >
-            delete
-          </button>
+          ></button>
         </li>
       ))}
     </ul>
