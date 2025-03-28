@@ -105,6 +105,7 @@ const App = () => {
         });
       })
       .catch((error) => {
+        // Handle error
         setNotification({
           message: error.response.data.details,
           type: "error",
