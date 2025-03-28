@@ -91,21 +91,29 @@ const App = () => {
     };
 
     // Add new person to server and update local state
-    personService.create(personObject).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson));
-      // Reset form fields
-      setNewName("");
-      setNewNumber("");
-      // Show success notification
-      setNotification({
-        message: `Added ${returnedPerson.name}`,
-        type: "success",
+    personService
+      .create(personObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        // Reset form fields
+        setNewName("");
+        setNewNumber("");
+        // Show success notification
+        setNotification({
+          message: `Added ${returnedPerson.name}`,
+          type: "success",
+        });
+      })
+      .catch((error) => {
+        setNotification({
+          message: error.response.data.details,
+          type: "error",
+        });
+        // Clear notification after 5 seconds
+        setTimeout(() => {
+          setNotification({ message: null, type: null });
+        }, 5000);
       });
-      // Clear notification after 5 seconds
-      setTimeout(() => {
-        setNotification({ message: null, type: null });
-      }, 5000);
-    });
   };
 
   // Event handlers for form inputs
